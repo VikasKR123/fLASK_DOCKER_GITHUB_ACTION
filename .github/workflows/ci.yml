@@ -1,4 +1,5 @@
 name: Flask CI/CD
+
 on:
   push:
     branches:
@@ -25,16 +26,15 @@ jobs:
         python -m pip install --upgrade pip
         pip install -r requirements.txt
 
-    - name: Run tests
+    - name: Log in to Docker Hub
       run: |
-        python -m unittest discover
+        echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
 
     - name: Build Docker image
       run: |
         docker build -t my-flask-app .
-    
+
     - name: Push Docker image to Docker Hub
       run: |
-        docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
-        docker tag my-flask-app:latest vikaskarbail/my-flask-app:latest
-        docker push vikaskarbail/my-flask-app:latest
+        docker tag my-flask-app:latest ${{ secrets.DOCKER_USERNAME }}/my-flask-app:latest
+        docker push ${{ secrets.DOCKER_USERNAME }}/my-flask-app:latest
